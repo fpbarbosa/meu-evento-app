@@ -1,0 +1,23 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Prisma
+backend/prisma/migrations/
+backend/prisma/dev.db
+
+# Environment variables
+.env
+backend/.env
+frontend/.env
+
+# Build
+dist/
+build/
+
+# OS / IDE
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

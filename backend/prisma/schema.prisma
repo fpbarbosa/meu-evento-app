@@ -1,0 +1,68 @@
+datasource db {
+  provider = "postgresql" 
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id         String   @id @default(uuid())
+  name       String
+  email      String   @unique
+  password   String
+  role       Role
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  deleted_at DateTime?
+
+  supplier   Supplier?
+
+  @@map("users")
+}
+
+enum Role {
+  CLIENT
+  SUPPLIER
+  ADMIN
+}
+
+model Supplier {
+  id         String   @id @default(uuid())
+  user_id    String   @unique
+  status     SupplierStatus
+  rating     Float?
+  deleted_at DateTime?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user       User     @relation(fields: [user_id], references: [id])
+  products   Product[]
+
+  @@map("suppliers")
+}
+
+enum SupplierStatus {
+  PENDING
+  APPROVED
+  BLOCKED
+}
+
+model Product {
+  id            String   @id @default(uuid())
+  supplier_id   String
+  name          String
+  description   String
+  category      String
+  price_per_day Decimal
+  quantity      Int
+  deleted_at    DateTime?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  supplier      Supplier @relation(fields: [supplier_id], references: [id])
+
+  @@map("products")
+}
+
+
