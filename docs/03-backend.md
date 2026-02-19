@@ -1,62 +1,83 @@
-\# Backend
+# Backend
 
+Este documento descreve a arquitetura e organização do backend do sistema Meu Evento.
 
+---
 
-\## Arquitetura
+## Visão Geral
 
-O backend segue o padrão:
+O backend é responsável por:
+
+- Autenticação e autorização
+- Regras de negócio
+- Persistência no banco de dados
+- Controle de pedidos e pagamentos
+- Comunicação com serviços externos
+
+Tecnologia atual:
+
+- Node.js
+- Express
+- CORS
+- PostgreSQL (via Prisma)
+- JWT (planejado para validação completa)
+
+---
+
+## Arquitetura
+
+Padrão adotado:
 
 Controller → Service → Repository
 
+### Responsabilidades
 
+- Controller → Recebe requisições HTTP e retorna respostas
+- Service → Contém regras de negócio
+- Repository → Comunicação com o banco de dados
 
-\## Domínios
+---
 
-\- auth
+## Estrutura de Domínios
 
-\- users
+O backend é organizado por domínio:
 
-\- suppliers
+- auth
+- users
+- suppliers
+- products
+- orders
+- payments
 
-\- products
+Cada domínio deverá conter:
 
-\- orders
+- controller
+- service
+- repository
+- dto (futuramente)
 
-\- payments
+---
 
+# Autenticação
 
+## Modelo
 
-\## Autenticação
+Autenticação baseada em JWT (JSON Web Token).
 
-Utiliza JWT para autenticação.
+Características:
 
-Roles:
+- Stateless
+- Token enviado pelo cliente via header Authorization
+- Controle de acesso por role
 
-\- CLIENT
+---
 
-\- SUPPLIER
+## Fluxo de Login (Atual MVP)
 
-\- ADMIN
+1. Cliente envia email e senha
+2. Backend valida credenciais
+3. Se válidas → retorna token
+4. Se inválidas → retorna 401
 
-
-
-\## Autenticação
-
-\- JWT stateless
-
-\- Payload contém userId e role
-
-\- Senhas criptografadas com bcrypt
-
-
-
-\## Usuários
-
-\- Centralizados na tabela users
-
-\- Soft delete aplicado
-
-\- Roles controlam acesso
-
-
+Rota implementada:
 

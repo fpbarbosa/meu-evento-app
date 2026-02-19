@@ -1,22 +1,46 @@
-\# Deploy
+# Deploy
 
+Este documento descreve a estratégia de deploy do sistema Meu Evento.
 
+---
 
-\## Infraestrutura
+## Objetivo
 
-\- Backend: AWS / Render / Railway
+Garantir:
 
-\- Banco: PostgreSQL
+- Disponibilidade
+- Escalabilidade
+- Segurança
+- Separação entre ambientes
 
-\- Storage: S3 ou Firebase
+---
 
+# Ambientes
 
+## 1. Desenvolvimento (Local)
 
-\## Variáveis de Ambiente
+- Backend rodando localmente (Node.js)
+- Banco PostgreSQL local
+- Flutter Web ou emulador
+- Variáveis via `.env`
 
-\- DATABASE\_URL
+---
 
-\- JWT\_SECRET
+## 2. Produção (Planejado)
 
+- Backend hospedado em:
+  - AWS
+  - Render
+  - Railway
 
+- Banco:
+  - PostgreSQL gerenciado (AWS RDS / Railway / Render DB)
+
+- Storage:
+  - AWS S3
+  - Firebase Storage
+
+---
+
+# Arquitetura de Infraestrutura
 

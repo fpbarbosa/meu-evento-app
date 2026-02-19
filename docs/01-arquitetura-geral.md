@@ -1,66 +1,41 @@
-# Arquitetura Geral
+# Arquitetura Geral do Sistema
 
-Documento de visão macro do sistema.
+Documento de visão macro do aplicativo de aluguel de utensílios para festas, no modelo marketplace (estilo Uber), conectando clientes e fornecedores locais.
 
+---
 
+## Objetivo
 
-\# Arquitetura Geral do Sistema
+Descrever a arquitetura técnica do sistema, suas camadas, fluxo de autenticação e tecnologias utilizadas no MVP atual.
 
+---
 
-
-\## Objetivo
-
-Este documento descreve a arquitetura geral do aplicativo de aluguel de utensílios para festas,
-
-no modelo marketplace (estilo Uber), conectando clientes e fornecedores locais.
-
-
-
-\## Visão Geral
+## Visão Geral
 
 O sistema é composto por:
 
-\- App do Cliente (Flutter)
+- App Mobile (Flutter)
+- Backend API (Node.js + Express)
+- Banco de Dados (PostgreSQL)
+- Serviços externos (Pagamentos, Storage e Notificações)
 
-\- App do Fornecedor (Flutter)
+---
 
-\- Backend (Node.js + NestJS)
+## Fluxo Geral do Marketplace (Visão de Negócio)
 
-\- Banco de Dados (PostgreSQL)
+1. Cliente acessa o app e busca produtos
+2. App consulta a API
+3. Backend processa regras de negócio
+4. Banco retorna dados
+5. Cliente cria pedido e realiza pagamento
+6. Fornecedor recebe solicitação
+7. Pedido é confirmado
 
-\- Serviços externos (Pagamentos, Storage, Notificações)
+---
 
+## Arquitetura Mobile (Flutter)
 
+Padrão adotado: **Feature-First Architecture**
 
-\## Fluxo Geral
-
-1\. Cliente acessa o app e busca produtos
-
-2\. App consulta a API
-
-3\. Backend processa regras de negócio
-
-4\. Banco retorna dados
-
-5\. Cliente cria pedido e realiza pagamento
-
-6\. Fornecedor recebe solicitação
-
-7\. Pedido é confirmado
-
-
-
-\## Tecnologias
-
-\- Flutter (Mobile)
-
-\- Node.js + NestJS (Backend)
-
-\- PostgreSQL (Banco)
-
-\- JWT (Autenticação)
-
-\- Mercado Pago / Stripe (Pagamentos)
-
-
+### Estrutura principal
 

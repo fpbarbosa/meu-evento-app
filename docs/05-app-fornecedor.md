@@ -1,32 +1,24 @@
-\# App do Fornecedor
+# App do Fornecedor
 
+Este documento descreve a arquitetura, funcionalidades e fluxo do aplicativo destinado aos Fornecedores no sistema Meu Evento.
 
+---
 
-\## Funcionalidades
+## Objetivo
 
-\- Cadastro com aprovação
+Permitir que fornecedores:
 
-\- Cadastro de produtos
+- Cadastrem seus produtos
+- Gerenciem disponibilidade
+- Aceitem ou recusem pedidos
+- Acompanhem ganhos
+- Gerenciem sua reputação
 
-\- Gerenciar disponibilidade
+---
 
-\- Aceitar pedidos
+# Arquitetura Mobile
 
-\- Visualizar ganhos
+O app do fornecedor utilizará a mesma base do app cliente, diferenciando comportamento por **role (SUPPLIER)**.
 
-
-
-\## Telas
-
-1\. Login
-
-2\. Dashboard
-
-3\. Produtos
-
-4\. Pedidos
-
-5\. Carteira
-
-
+Estrutura planejada:
 

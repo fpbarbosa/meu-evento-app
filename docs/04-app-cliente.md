@@ -1,42 +1,23 @@
 # App do Cliente
 
-Fluxo e telas do app do cliente.
+Este documento descreve a arquitetura, funcionalidades e fluxo do aplicativo do Cliente no sistema Meu Evento.
 
+---
 
+## Objetivo
 
-\# App do Cliente
+Permitir que clientes:
 
+- Busquem produtos para aluguel
+- Realizem pedidos
+- Efetuem pagamentos
+- Avaliem fornecedores
 
+---
 
-\## Funcionalidades
+# Arquitetura Mobile
 
-\- Cadastro e login
+O app segue o padrão **Feature-First Architecture**.
 
-\- Busca por produtos
-
-\- Filtro por data e localização
-
-\- Criação de pedido
-
-\- Pagamento
-
-\- Avaliação
-
-
-
-\## Telas
-
-1\. Login
-
-2\. Home
-
-3\. Lista de produtos
-
-4\. Detalhe do produto
-
-5\. Pagamento
-
-6\. Status do pedido
-
-
+### Estrutura
 

@@ -1,246 +1,204 @@
-\# Modelagem do Banco de Dados – PostgreSQL
+# Modelagem do Banco de Dados – PostgreSQL
 
-
-
-\## Padrões Gerais
-
-\- Banco relacional: PostgreSQL
-
-\- Chaves primárias: UUID
-
-\- Soft delete: deleted\_at
-
-\- Auditoria: created\_at, updated\_at
-
-
+Este documento descreve a modelagem relacional do sistema marketplace de aluguel de utensílios para festas.
 
 ---
 
+## Padrões Gerais
 
-
-\## users
-
-Armazena todos os usuários do sistema.
-
-
-
-Campos:
-
-\- id (UUID, PK)
-
-\- name (VARCHAR)
-
-\- email (VARCHAR, UNIQUE)
-
-\- password (VARCHAR)
-
-\- role (ENUM: CLIENT, SUPPLIER, ADMIN)
-
-\- created\_at (TIMESTAMP)
-
-\- updated\_at (TIMESTAMP)
-
-\- deleted\_at (TIMESTAMP, NULL)
-
-
-
-Motivo:
-
-Centralizar autenticação e controle de acesso.
-
-
+- Banco relacional: **PostgreSQL**
+- ORM: **Prisma**
+- Chaves primárias: UUID
+- Soft delete: `deleted_at`
+- Auditoria: `created_at`, `updated_at`
+- Convenção: snake_case no banco
 
 ---
 
+## Estrutura Geral
 
+### Principais Entidades
 
-\## suppliers
-
-Dados específicos de fornecedores.
-
-
-
-Campos:
-
-\- id (UUID, PK)
-
-\- user\_id (UUID, FK → users.id)
-
-\- status (ENUM: PENDING, APPROVED, BLOCKED)
-
-\- description (TEXT)
-
-\- rating (DECIMAL)
-
-\- created\_at
-
-\- updated\_at
-
-
-
-Motivo:
-
-Separar dados de fornecedor sem duplicar usuário.
-
-
+- Users
+- Suppliers
+- Products
+- Orders
+- Payments
+- Reviews
 
 ---
 
+# Tabelas
 
+---
 
-\## products
+## 1. users
+
+Armazena todos os usuários do sistema (clientes, fornecedores e admins).
+
+### Campos
+
+- id (UUID, PK)
+- name (VARCHAR)
+- email (VARCHAR, UNIQUE)
+- password (VARCHAR)
+- role (ENUM: CLIENT, SUPPLIER, ADMIN)
+- created_at (TIMESTAMP)
+- updated_at (TIMESTAMP)
+- deleted_at (TIMESTAMP, NULL)
+
+### Regra de Negócio
+
+- Autenticação centralizada
+- Controle de acesso baseado em role
+- Soft delete para manter histórico
+
+---
+
+## 2. suppliers
+
+Contém dados específicos de fornecedores.
+
+### Campos
+
+- id (UUID, PK)
+- user_id (UUID, FK → users.id)
+- status (ENUM: PENDING, APPROVED, BLOCKED)
+- description (TEXT)
+- rating (DECIMAL)
+- created_at (TIMESTAMP)
+- updated_at (TIMESTAMP)
+
+### Regra de Negócio
+
+- Cada fornecedor possui exatamente um usuário
+- Aprovação obrigatória antes de publicar produtos
+- Avaliação média calculada via reviews
+
+---
+
+## 3. products
 
 Itens disponíveis para aluguel.
 
+### Campos
 
+- id (UUID, PK)
+- supplier_id (UUID, FK → suppliers.id)
+- name (VARCHAR)
+- category (VARCHAR)
+- description (TEXT)
+- price_per_day (DECIMAL)
+- quantity (INT)
+- created_at (TIMESTAMP)
+- updated_at (TIMESTAMP)
+- deleted_at (TIMESTAMP)
 
-Campos:
+### Regra de Negócio
 
-\- id (UUID, PK)
-
-\- supplier\_id (UUID, FK → suppliers.id)
-
-\- name (VARCHAR)
-
-\- category (VARCHAR)
-
-\- description (TEXT)
-
-\- price\_per\_day (DECIMAL)
-
-\- quantity (INT)
-
-\- created\_at
-
-\- updated\_at
-
-\- deleted\_at
-
-
-
-Motivo:
-
-Permitir múltiplos produtos por fornecedor.
-
-
+- Um fornecedor pode ter vários produtos
+- Produto pode ser desativado via soft delete
+- Controle de estoque por quantidade
 
 ---
 
-
-
-\## orders
+## 4. orders
 
 Pedidos realizados pelos clientes.
 
+### Campos
 
+- id (UUID, PK)
+- client_id (UUID, FK → users.id)
+- supplier_id (UUID, FK → suppliers.id)
+- status (ENUM: PENDING, ACCEPTED, REJECTED, PAID, CANCELED)
+- start_date (DATE)
+- end_date (DATE)
+- total_price (DECIMAL)
+- created_at (TIMESTAMP)
+- updated_at (TIMESTAMP)
 
-Campos:
+### Regra de Negócio
 
-\- id (UUID, PK)
-
-\- client\_id (UUID, FK → users.id)
-
-\- supplier\_id (UUID, FK → suppliers.id)
-
-\- status (ENUM: PENDING, ACCEPTED, REJECTED, PAID, CANCELED)
-
-\- start\_date (DATE)
-
-\- end\_date (DATE)
-
-\- total\_price (DECIMAL)
-
-\- created\_at
-
-\- updated\_at
-
-
-
-Motivo:
-
-Representa a transação principal do marketplace.
-
-
+- Representa a transação principal do marketplace
+- Status controla ciclo do pedido
+- Apenas pedidos concluídos podem gerar review
 
 ---
 
-
-
-\## payments
+## 5. payments
 
 Controle financeiro dos pedidos.
 
+### Campos
 
+- id (UUID, PK)
+- order_id (UUID, FK → orders.id)
+- provider (ENUM: MERCADO_PAGO, STRIPE)
+- status (ENUM: PENDING, PAID, FAILED)
+- amount (DECIMAL)
+- transaction_id (VARCHAR)
+- created_at (TIMESTAMP)
+- updated_at (TIMESTAMP)
 
-Campos:
+### Regra de Negócio
 
-\- id (UUID, PK)
-
-\- order\_id (UUID, FK → orders.id)
-
-\- provider (ENUM: MERCADO\_PAGO, STRIPE)
-
-\- status (ENUM: PENDING, PAID, FAILED)
-
-\- amount (DECIMAL)
-
-\- transaction\_id (VARCHAR)
-
-\- created\_at
-
-\- updated\_at
-
-
-
-Motivo:
-
-Nunca confiar apenas no status do pedido para pagamentos.
-
-
+- Nunca confiar apenas no status do pedido
+- Status financeiro independente do pedido
+- Integração futura com gateway externo
 
 ---
 
-
-
-\## reviews
+## 6. reviews
 
 Avaliações de fornecedores.
 
+### Campos
 
+- id (UUID, PK)
+- order_id (UUID, FK → orders.id)
+- client_id (UUID, FK → users.id)
+- supplier_id (UUID, FK → suppliers.id)
+- rating (INT)
+- comment (TEXT)
+- created_at (TIMESTAMP)
 
-Campos:
+### Regra de Negócio
 
-\- id (UUID, PK)
+- Apenas pedidos finalizados podem gerar avaliação
+- Um pedido pode ter no máximo uma review
 
-\- order\_id (UUID, FK → orders.id)
+---
 
-\- client\_id (UUID, FK → users.id)
+# Soft Delete
 
-\- supplier\_id (UUID, FK → suppliers.id)
+Todas as tabelas principais utilizam soft delete através do campo `deleted_at`.
 
-\- rating (INT)
+## Regras
 
-\- comment (TEXT)
-
-\- created\_at
-
-
-
-Motivo:
-
-Garantir que só pedidos concluídos possam gerar avaliações.
-
-
-## Soft Delete
-
-Todas as tabelas utilizam soft delete através do campo `deleted_at`.
-
-Regras:
 - Exclusões são feitas com UPDATE, não DELETE
-- Registros ativos possuem deleted_at = NULL
-- Queries devem sempre filtrar deleted_at IS NULL
-- Exclusão definitiva só via admin ou script manual
+- Registros ativos possuem `deleted_at = NULL`
+- Queries devem sempre filtrar `deleted_at IS NULL`
+- Exclusão definitiva apenas via admin ou script manual
 
+---
 
+# Relações Principais
 
+- User 1:N Orders
+- User 1:1 Supplier
+- Supplier 1:N Products
+- Supplier 1:N Orders
+- Order 1:1 Payment
+- Order 1:1 Review
 
+---
+
+# Estado Atual da Implementação
+
+- Users → Implementado
+- Suppliers → Implementado
+- Products → Implementado
+- Orders → Modelado
+- Payments → Modelado
+- Reviews → Modelado
