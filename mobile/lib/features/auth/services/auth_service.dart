@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 class AuthService {
   static const String _baseUrl = 'http://localhost:3000';
 
-  Future<void> login({
+  Future<String> login({
     required String email,
     required String password,
   }) async {
@@ -21,12 +21,13 @@ class AuthService {
       throw Exception('E-mail ou senha inválidos');
     }
 
-    // 🔐 JWT será tratado no próximo passo
     final data = jsonDecode(response.body);
     final token = data['token'];
 
     if (token == null) {
       throw Exception('Token não retornado pelo servidor');
     }
+
+    return token;
   }
 }

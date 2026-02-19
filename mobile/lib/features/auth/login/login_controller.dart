@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/routes/app_routes.dart';
+import '../../../core/services/token_storage.dart';
+import '../services/auth_service.dart';
+
 class LoginController extends ChangeNotifier {
+  final AuthService _authService = AuthService();
+  final TokenStorage _tokenStorage = TokenStorage();
+
   String email = '';
   String password = '';
   bool isLoading = false;
@@ -14,7 +21,7 @@ class LoginController extends ChangeNotifier {
     password = value;
   }
 
-  Future<void> login() async {
+  Future<void> login(BuildContext context) async {
     error = null;
 
     if (email.isEmpty || password.isEmpty) {
@@ -26,16 +33,25 @@ class LoginController extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
-    // Simula chamada de API
-    await Future.delayed(const Duration(seconds: 2));
+    try {
+      final token = await _authService.login(
+        email: email,
+        password: password,
+      );
 
-    isLoading = false;
+      await _tokenStorage.saveToken(token);
 
-    // Simulação de erro/sucesso
-    if (email != 'demo@email.com' || password != '123456') {
-      error = 'Email ou senha inválidos';
+      if (context.mounted) {
+        Navigator.pushReplacementNamed(
+          context,
+          AppRoutes.home,
+        );
+      }
+    } catch (e) {
+      error = e.toString().replaceAll('Exception: ', '');
     }
 
+    isLoading = false;
     notifyListeners();
   }
 }

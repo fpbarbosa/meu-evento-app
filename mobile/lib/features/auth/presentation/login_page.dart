@@ -60,8 +60,9 @@ class LoginPage extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed:
-                          controller.isLoading ? null : controller.login,
+                      onPressed: controller.isLoading
+                          ? null
+                          : () => controller.login(context),
                       child: controller.isLoading
                           ? const SizedBox(
                               height: 20,

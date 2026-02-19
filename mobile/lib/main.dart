@@ -19,10 +19,10 @@ class MeuEventoApp extends StatelessWidget {
       // 🎨 Tema global do app
       theme: AppTheme.theme,
 
-      // 🧭 Rotas
-      initialRoute: AppRoutes.login,
+      // 🧭 Agora inicia pela Splash
+      initialRoute: AppRoutes.splash,
+
       onGenerateRoute: AppRouter.generateRoute,
     );
   }
 }
-

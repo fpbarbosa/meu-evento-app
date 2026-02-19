@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/routes/app_routes.dart';
+import '../../../core/services/token_storage.dart';
 import '../services/auth_service.dart';
 
 class LoginController extends ChangeNotifier {
   final AuthService _authService = AuthService();
+  final TokenStorage _tokenStorage = TokenStorage();
 
   String _email = '';
   String _password = '';
@@ -22,7 +26,7 @@ class LoginController extends ChangeNotifier {
     _password = value;
   }
 
-  Future<void> login() async {
+  Future<void> login(BuildContext context) async {
     if (_isLoading) return;
 
     if (_email.isEmpty || _password.isEmpty) {
@@ -36,14 +40,19 @@ class LoginController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _authService.login(
+      final token = await _authService.login(
         email: _email,
         password: _password,
       );
 
-      // 👉 Aqui entra navegação futura (Home)
-      debugPrint('Login realizado com sucesso');
+      await _tokenStorage.saveToken(token);
 
+      if (context.mounted) {
+        Navigator.pushReplacementNamed(
+          context,
+          AppRoutes.home,
+        );
+      }
     } catch (e) {
       _error = e.toString().replaceAll('Exception: ', '');
     }
