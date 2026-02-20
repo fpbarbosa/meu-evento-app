@@ -1,7 +1,12 @@
-import { defineConfig } from "prisma/config";
+import { defineConfig } from 'prisma/config'
+import 'dotenv/config'
 
 export default defineConfig({
-  migrate: {
-    datasourceUrl: "postgresql://postgres:123456@localhost:5432/festa_app",
+  schema: 'prisma/schema.prisma',
+  migrations: {
+    path: 'prisma/migrations',
   },
-});
+  datasource: {
+    url: process.env.DATABASE_URL!,
+  },
+})

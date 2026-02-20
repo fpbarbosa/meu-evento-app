@@ -1,45 +1,20 @@
 datasource db {
-  provider = "postgresql" 
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
   provider = "prisma-client-js"
 }
 
-model User {
-  id         String   @id @default(uuid())
-  name       String
-  email      String   @unique
-  password   String
-  role       Role
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  deleted_at DateTime?
-
-  supplier   Supplier?
-
-  @@map("users")
-}
+//////////////////////////////////////////////////////
+// ENUMS
+//////////////////////////////////////////////////////
 
 enum Role {
   CLIENT
   SUPPLIER
   ADMIN
-}
-
-model Supplier {
-  id         String   @id @default(uuid())
-  user_id    String   @unique
-  status     SupplierStatus
-  rating     Float?
-  deleted_at DateTime?
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  user       User     @relation(fields: [user_id], references: [id])
-  products   Product[]
-
-  @@map("suppliers")
 }
 
 enum SupplierStatus {
@@ -48,21 +23,119 @@ enum SupplierStatus {
   BLOCKED
 }
 
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+//////////////////////////////////////////////////////
+// USER
+//////////////////////////////////////////////////////
+
+model User {
+  id         String   @id @default(uuid())
+  name       String
+  email      String   @unique
+  password   String
+  role       Role
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  deleted_at DateTime?
+
+  supplier   Supplier?
+  bookings   Booking[]
+
+  @@map("users")
+}
+
+//////////////////////////////////////////////////////
+// SUPPLIER
+//////////////////////////////////////////////////////
+
+model Supplier {
+  id           String          @id @default(uuid())
+  user_id      String          @unique
+
+  description  String?         // ✅ NOVO CAMPO
+  status       SupplierStatus  @default(APPROVED)
+  rating       Float?          @default(0)
+
+  deleted_at   DateTime?
+  created_at   DateTime        @default(now())
+  updated_at   DateTime        @updatedAt
+
+  user         User            @relation(fields: [user_id], references: [id])
+  products     Product[]
+
+  @@map("suppliers")
+}
+
+
+//////////////////////////////////////////////////////
+// PRODUCT
+//////////////////////////////////////////////////////
+
 model Product {
-  id            String   @id @default(uuid())
+  id            String    @id @default(uuid())
   supplier_id   String
   name          String
   description   String
   category      String
-  price_per_day Decimal
+  price_per_day Decimal   @db.Decimal(10,2)
   quantity      Int
+
   deleted_at    DateTime?
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
 
-  supplier      Supplier @relation(fields: [supplier_id], references: [id])
+  supplier      Supplier  @relation(fields: [supplier_id], references: [id])
+  bookings      Booking[]
 
+  @@index([supplier_id])
   @@map("products")
 }
 
+//////////////////////////////////////////////////////
+// BOOKING
+//////////////////////////////////////////////////////
 
+model Booking {
+  id           String        @id @default(uuid())
+  user_id      String
+  product_id   String
+
+  quantity     Int
+  start_date   DateTime
+  end_date     DateTime
+  total_price  Decimal       @db.Decimal(10,2)
+
+  status       BookingStatus @default(PENDING)
+
+  //////////////////////////////////////////////////////
+  // 🔥 CANCELAMENTO
+  //////////////////////////////////////////////////////
+  cancellation_fee Decimal?  @db.Decimal(10,2)
+  cancelled_at     DateTime?
+
+  //////////////////////////////////////////////////////
+  // 💳 PAGAMENTO (MERCADO PAGO)
+  //////////////////////////////////////////////////////
+  payment_id      String?   // id retornado pelo MP
+  payment_status  String?   // approved, rejected, pending
+
+  created_at   DateTime      @default(now())
+  updated_at   DateTime      @updatedAt
+
+  user         User          @relation(fields: [user_id], references: [id])
+  product      Product       @relation(fields: [product_id], references: [id])
+
+  @@index([user_id])
+  @@index([product_id])
+  @@index([start_date])
+  @@index([end_date])
+  @@index([payment_id])
+  @@map("bookings")
+}
